@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskflow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-md p-4 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <span class="text-xl font-bold">TaskFlow</span>
+        </div>
+        <button id="theme-toggle" class="p-2 rounded hover:bg-gray-200">
+            🌙
+        </button>
+    </header>
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- Sidebar -->
+        <nav class="bg-white w-full md:w-64 border-r border-gray-200 p-4 space-y-2">
+            <ul class="space-y-1">
+                <li><a href="#" class="block py-2 px-3 rounded hover:bg-gray-100">All Tasks</a></li>
+                <li><a href="#" class="block py-2 px-3 rounded hover:bg-gray-100">Today</a></li>
+                <li><a href="#" class="block py-2 px-3 rounded hover:bg-gray-100">Upcoming</a></li>
+                <li><a href="#" class="block py-2 px-3 rounded hover:bg-gray-100">Completed</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4">
+            <!-- Statistics -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white p-4 rounded shadow">
+                    <h2 class="text-lg font-semibold mb-2">Total Tasks</h2>
+                    <p class="text-2xl">0</p>
+                </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <h2 class="text-lg font-semibold mb-2">Completed</h2>
+                    <p class="text-2xl">0</p>
+                </div>
+                <div class="bg-white p-4 rounded shadow">
+                    <h2 class="text-lg font-semibold mb-2">Pending</h2>
+                    <p class="text-2xl">0</p>
+                </div>
+            </section>
+            <!-- Search & Filters -->
+            <section class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 space-y-2 md:space-y-0">
+                <input type="text" placeholder="Search tasks..."
+                    class="flex-1 border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <select class="border border-gray-300 rounded p-2 ml-0 md:ml-2">
+                    <option>All</option>
+                    <option>Today</option>
+                    <option>Upcoming</option>
+                    <option>Completed</option>
+                </select>
+            </section>
+            <!-- Task List -->
+            <section class="bg-white rounded shadow p-4">
+                <h2 class="text-xl font-semibold mb-4">Tasks</h2>
+                <ul id="task-list" class="space-y-2">
+                    <!-- Example task item -->
+                    <li class="border-b pb-2">
+                        <div class="flex justify-between items-center">
+                            <span>Sample Task</span>
+                            <button class="text-sm text-indigo-600 hover:underline">Edit</button>
+                        </div>
+                    </li>
+                </ul>
+                <button id="add-task-btn"
+                    class="mt-4 w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">Add Task</button>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="task-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-lg font-semibold mb-4">Add New Task</h3>
+            <input type="text" id="task-title" placeholder="Task title"
+                class="w-full border border-gray-300 rounded p-2 mb-4" />
+            <div class="flex justify-end space-x-2">
+                <button id="cancel-modal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+                <button id="save-task"
+                    class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./src/main.js"></script>
+</body>
+
+</html>
