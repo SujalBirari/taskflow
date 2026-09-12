@@ -62,13 +62,6 @@
             <section class="bg-white rounded shadow p-4">
                 <h2 class="text-xl font-semibold mb-4">Tasks</h2>
                 <ul id="task-list" class="space-y-2">
-                    <!-- Example task item -->
-                    <li class="border-b pb-2">
-                        <div class="flex justify-between items-center">
-                            <span>Sample Task</span>
-                            <button class="text-sm text-indigo-600 hover:underline">Edit</button>
-                        </div>
-                    </li>
                 </ul>
                 <button id="add-task-btn"
                     class="mt-4 w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">Add Task</button>
@@ -76,16 +69,74 @@
         </main>
     </div>
 
-    <!-- Add Task Modal -->
     <div id="task-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
         <div class="bg-white rounded-lg p-6 w-full max-w-md">
             <h3 class="text-lg font-semibold mb-4">Add New Task</h3>
+
             <input type="text" id="task-title" placeholder="Task title"
                 class="w-full border border-gray-300 rounded p-2 mb-4" />
+
+            <textarea id="task-desc" placeholder="Task description (optional)"
+                class="w-full border border-gray-300 rounded p-2 mb-4"></textarea>
+
+            <select id="task-category" class="w-full border border-gray-300 rounded p-2 mb-4">
+                <option value="" disabled selected>Select category</option>
+                <option value="work">Work</option>
+                <option value="personal">Personal</option>
+                <option value="study">Study</option>
+                <option value="other">Other</option>
+            </select>
+
+            <select id="task-priority" class="w-full border border-gray-300 rounded p-2 mb-4">
+                <option value="" disabled selected>Select priority</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+
+            <input type="date" id="task-due" class="w-full border border-gray-300 rounded p-2 mb-4" />
+
             <div class="flex justify-end space-x-2">
                 <button id="cancel-modal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
                 <button id="save-task"
                     class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-task-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-lg font-semibold mb-4 border-b pb-2">Task Details</h3>
+            <div class="space-y-4">
+                <div>
+                    <h4 class="text-sm text-gray-500 font-medium">Title</h4>
+                    <p id="view-task-title" class="text-gray-900 font-medium"></p>
+                </div>
+                <div>
+                    <h4 class="text-sm text-gray-500 font-medium">Description</h4>
+                    <p id="view-task-desc" class="text-gray-900 whitespace-pre-wrap"></p>
+                </div>
+                <div class="flex justify-between">
+                    <div>
+                        <h4 class="text-sm text-gray-500 font-medium">Category</h4>
+                        <p id="view-task-category" class="text-gray-900"></p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm text-gray-500 font-medium">Priority</h4>
+                        <p id="view-task-priority" class="text-gray-900"></p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm text-gray-500 font-medium">Due Date</h4>
+                        <p id="view-task-due" class="text-gray-900"></p>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm text-gray-500 font-medium">Status</h4>
+                    <p id="view-task-status" class="text-gray-900"></p>
+                </div>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button id="close-view-modal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Close</button>
             </div>
         </div>
     </div>
