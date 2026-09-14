@@ -1,4 +1,4 @@
-import { validateTitle, validateDueDate, capitalise } from '../utils/validation.js';
+import { validateTaskForm, capitalise } from '../utils/validation.js';
 
 export const CATEGORIES = ['Work', 'Personal', 'Study', 'Other'];
 export const PRIORITIES  = ['Low', 'Medium', 'High'];
@@ -67,6 +67,17 @@ export class Task {
     get isCompleted() { return this.status?.toLowerCase() === 'completed'; }
     get isRejected()  { return this.status?.toLowerCase() === 'rejected'; }
 
+    /**
+     * A task is overdue when it is still pending AND its due date is before today.
+     * Completed / rejected tasks are never overdue.
+     */
+    get isOverdue() {
+        if (!this.isPending || !this.dueDate) return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);                  // midnight local time
+        return new Date(this.dueDate).getTime() < today.getTime();
+    }
+
     // ─── Mutation ─────────────────────────────────────────────────────────────
 
     /**
@@ -74,14 +85,16 @@ export class Task {
      * @throws {Error} if validation fails
      */
     update({ title, description, catRaw, priRaw, dueDate }) {
-        const titleCheck = validateTitle(title);
-        if (!titleCheck.valid) throw new Error(titleCheck.error);
+        const errors = validateTaskForm({ title, dueDate, priRaw });
+        if (errors.length > 0) {
+            const err = new Error('Validation failed: ' + errors.map(e => e.message).join(' | '));
+            err.fields = errors;
+            err.isValidationError = true;
+            throw err;
+        }
 
-        const dateCheck = validateDueDate(dueDate);
-        if (!dateCheck.valid)  throw new Error(dateCheck.error);
-
-        this.title       = title;
-        this.description = description || null;
+        this.title       = title.trim();
+        this.description = description?.trim() || null;
         this.category    = capitalise(catRaw);
         this.priority    = capitalise(priRaw);
         this.dueDate     = dueDate || null;

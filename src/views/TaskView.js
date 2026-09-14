@@ -27,30 +27,78 @@ export class TaskView {
         this.statTotal     = document.querySelector('#stat-total-tasks');
         this.statCompleted = document.querySelector('#stat-completed-tasks');
         this.statPending   = document.querySelector('#stat-pending-tasks');
+        this.statOverdue   = document.querySelector('#stat-overdue-tasks');
     }
 
     // ─── Stats ───────────────────────────────────────────────────────────────
 
     /**
      * Render pre-computed stats — no data logic here.
-     * @param {{ total: number, completed: number, pending: number }} stats
+     * @param {{ total: number, completed: number, pending: number, overdue: number }} stats
      */
-    updateStats({ total, completed, pending }) {
+    updateStats({ total, completed, pending, overdue }) {
         if (this.statTotal)     this.statTotal.textContent     = total;
         if (this.statCompleted) this.statCompleted.textContent = completed;
         if (this.statPending)   this.statPending.textContent   = pending;
+        if (this.statOverdue)   this.statOverdue.textContent   = overdue;
+
+        // Pulse the overdue card when count > 0
+        const overdueCard = this.statOverdue?.closest('div[class*="border-amber"]');
+        if (overdueCard) {
+            overdueCard.classList.toggle('ring-2',              overdue > 0);
+            overdueCard.classList.toggle('ring-amber-300',      overdue > 0);
+            overdueCard.classList.toggle('dark:ring-amber-700', overdue > 0);
+        }
     }
 
     // ─── Error feedback ──────────────────────────────────────────────────────
 
     /**
-     * Display a validation or runtime error to the user.
-     * Centralised here so the Controller never calls alert() directly.
+     * Display inline errors below the relevant form fields.
+     * Also applies a red border ring to the offending input.
+     *
+     * @param {{ field: string, message: string }[]} fieldErrors
+     */
+    showFieldErrors(fieldErrors) {
+        fieldErrors.forEach(({ field, message }) => {
+            // Show the error span
+            const span = document.querySelector(`#error-${field}`);
+            if (span) {
+                span.textContent = message;
+                span.classList.remove('hidden');
+            }
+            // Highlight the input/select
+            const input = document.querySelector(`#${field}`);
+            if (input) {
+                input.classList.add('border-red-400', 'dark:border-red-500',
+                                    'ring-2', 'ring-red-300', 'dark:ring-red-700');
+            }
+        });
+    }
+
+    /**
+     * Remove all inline field errors and input highlights.
+     */
+    clearFieldErrors() {
+        ['task-title', 'task-due', 'task-priority'].forEach(field => {
+            const span = document.querySelector(`#error-${field}`);
+            if (span) {
+                span.textContent = '';
+                span.classList.add('hidden');
+            }
+            const input = document.querySelector(`#${field}`);
+            if (input) {
+                input.classList.remove('border-red-400', 'dark:border-red-500',
+                                       'ring-2', 'ring-red-300', 'dark:ring-red-700');
+            }
+        });
+    }
+
+    /**
+     * Fallback for non-field errors (e.g. unexpected runtime errors).
      * @param {string} message
      */
     showError(message) {
-        // Using alert() as the minimal built-in fallback.
-        // Swap this implementation for a toast/snackbar without touching the Controller.
         alert(message);
     }
 
@@ -71,23 +119,23 @@ export class TaskView {
 
     _buildEmptyState() {
         const li = document.createElement('li');
-        li.className = 'text-center py-12 text-gray-500 bg-white rounded-lg border border-dashed border-gray-200';
+        li.className = 'text-center py-12 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-lg border border-dashed border-gray-200 dark:border-gray-700';
         li.innerHTML = `
-            <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2
                     M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
                 </path>
             </svg>
-            <p class="text-base font-medium text-gray-600">No tasks found</p>
-            <p class="text-xs text-gray-400 mt-1">Try adjusting your filters or search query</p>
+            <p class="text-base font-medium text-gray-600 dark:text-gray-400">No tasks found</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Try adjusting your filters or search query</p>
         `;
         return li;
     }
 
     _buildTaskItem(task, { onEdit, onComplete, onReject, onDelete }) {
         const li = document.createElement('li');
-        li.className = 'bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-3 hover:shadow-md transition-shadow';
+        li.className = 'bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 mb-3 hover:shadow-md transition-shadow';
 
         // ── Wrapper ──────────────────────────────────────────────────────────
         const row = document.createElement('div');
@@ -99,7 +147,7 @@ export class TaskView {
 
         const titleSpan = document.createElement('span');
         titleSpan.textContent = task.title;
-        titleSpan.classList.add('font-medium');
+        titleSpan.classList.add('font-medium', 'text-gray-900', 'dark:text-gray-100');
         left.appendChild(titleSpan);
 
         // Info tooltip
@@ -108,8 +156,8 @@ export class TaskView {
 
         const infoBtn = document.createElement('button');
         infoBtn.textContent = 'i';
-        infoBtn.classList.add('w-5', 'h-5', 'rounded-full', 'bg-gray-200', 'text-xs',
-            'text-gray-600', 'flex', 'items-center', 'justify-center', 'focus:outline-none');
+        infoBtn.classList.add('w-5', 'h-5', 'rounded-full', 'bg-gray-200', 'dark:bg-gray-700', 'text-xs',
+            'text-gray-600', 'dark:text-gray-400', 'flex', 'items-center', 'justify-center', 'focus:outline-none');
         descWrap.appendChild(infoBtn);
 
         const descText = (task.description || '').trim();
@@ -119,10 +167,13 @@ export class TaskView {
             ${descText ? `<div class="mb-1"><strong>Desc:</strong> ${descText}</div>` : ''}
             <div><strong>Created:</strong> ${createdAtText}</div>
         `;
-        tooltip.classList.add('absolute', 'left-full', 'ml-2', 'w-48', 'p-2', 'bg-gray-800',
-            'text-white', 'text-xs', 'rounded', 'shadow-lg', 'opacity-0',
+        tooltip.classList.add('absolute', 'left-full', 'ml-2', 'w-48', 'p-2',
+            'bg-gray-800', 'dark:bg-gray-900',
+            'text-white', 'dark:text-gray-200',
+            'text-xs', 'rounded', 'shadow-lg', 'opacity-0',
             'group-hover:opacity-100', 'transition-opacity', 'duration-200',
-            'pointer-events-none', 'z-10');
+            'pointer-events-none', 'z-10',
+            'border', 'border-gray-700', 'dark:border-gray-600');
         descWrap.appendChild(tooltip);
         left.appendChild(descWrap);
 
@@ -135,7 +186,7 @@ export class TaskView {
         badges.appendChild(this._buildBadges(task));
 
         const actions = document.createElement('div');
-        actions.classList.add('flex', 'items-center', 'space-x-3', 'border-l', 'pl-4', 'border-gray-200');
+        actions.classList.add('flex', 'items-center', 'space-x-3', 'border-l', 'pl-4', 'border-gray-200', 'dark:border-gray-700');
         actions.appendChild(this._buildActions(task, { onEdit, onComplete, onReject, onDelete }));
 
         right.appendChild(badges);
@@ -233,13 +284,16 @@ export class TaskView {
 
     openAddModal(onSave, onCancel) {
         this._clearTaskForm();
+        this.clearFieldErrors();
         this.taskModal.classList.remove('hidden');
         this.taskTitleInput.focus();
         document.querySelector('#save-task').onclick = onSave;
         document.querySelector('#cancel-modal').onclick = onCancel;
+        this._bindInlineErrorClear();
     }
 
     openEditModal(task, onSave, onCancel) {
+        this.clearFieldErrors();
         this.taskTitleInput.value = task.title;
         document.querySelector('#task-desc').value     = task.description || '';
         document.querySelector('#task-category').value = task.category ? task.category.toLowerCase() : '';
@@ -250,11 +304,40 @@ export class TaskView {
         this.taskTitleInput.focus();
         document.querySelector('#save-task').onclick    = onSave;
         document.querySelector('#cancel-modal').onclick = onCancel;
+        this._bindInlineErrorClear();
     }
 
     closeTaskModal() {
         this.taskModal.classList.add('hidden');
+        this.clearFieldErrors();
         this._clearTaskForm();
+    }
+
+    /**
+     * Wire each validated input to clear its own error on user interaction.
+     * Called once per modal open so listeners are always fresh.
+     * @private
+     */
+    _bindInlineErrorClear() {
+        const clearOn = (selector, field) => {
+            const el = document.querySelector(selector);
+            if (!el) return;
+            // Use 'once: false' — we re-bind on every open, and the modal
+            // is torn down (hidden) between sessions, so duplicates are harmless.
+            el.addEventListener('input', () => {
+                const span  = document.querySelector(`#error-${field}`);
+                const input = document.querySelector(`#${field}`);
+                if (span)  { span.textContent = ''; span.classList.add('hidden'); }
+                if (input) {
+                    input.classList.remove('border-red-400', 'dark:border-red-500',
+                                           'ring-2', 'ring-red-300', 'dark:ring-red-700');
+                }
+            });
+        };
+
+        clearOn('#task-title',    'task-title');
+        clearOn('#task-due',      'task-due');
+        clearOn('#task-priority', 'task-priority');
     }
 
     readTaskForm() {
@@ -324,5 +407,14 @@ export class TaskView {
 
     getSearchTerm() {
         return this.searchInput ? this.searchInput.value.trim().toLowerCase() : '';
+    }
+
+    /** Focus the search input field. */
+    focusSearch() {
+        if (this.searchInput) {
+            this.searchInput.focus();
+            // Optional: select all text if already populated
+            this.searchInput.select();
+        }
     }
 }

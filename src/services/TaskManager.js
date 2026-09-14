@@ -54,10 +54,12 @@ export class TaskManager {
     get pending()   { return this._tasks.filter(t => t.isPending); }
     get completed() { return this._tasks.filter(t => t.isCompleted); }
     get rejected()  { return this._tasks.filter(t => t.isRejected); }
+    /** Pending tasks whose due date has passed. */
+    get overdue()   { return this._tasks.filter(t => t.isOverdue); }
 
     /**
-     * Pre-computed summary counts \u2014 the Model owns this logic.
-     * @returns {{ total: number, completed: number, pending: number, rejected: number }}
+     * Pre-computed summary counts — the Model owns this logic.
+     * @returns {{ total: number, completed: number, pending: number, rejected: number, overdue: number }}
      */
     get stats() {
         return {
@@ -65,6 +67,7 @@ export class TaskManager {
             completed: this._tasks.filter(t => t.isCompleted).length,
             pending:   this._tasks.filter(t => t.isPending).length,
             rejected:  this._tasks.filter(t => t.isRejected).length,
+            overdue:   this._tasks.filter(t => t.isOverdue).length,
         };
     }
 

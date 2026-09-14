@@ -84,7 +84,11 @@ export class TaskController {
             this.manager.add(formData.title, formData);
             // TaskManager publishes 'task:created' → subscription calls refresh()
         } catch (err) {
-            this.view.showError(err.message); // ← View owns error display
+            if (err.isValidationError) {
+                this.view.showFieldErrors(err.fields); // ← inline errors per field
+            } else {
+                this.view.showError(err.message);      // ← fallback for unexpected errors
+            }
             return;
         }
         this.view.closeTaskModal();
@@ -104,7 +108,11 @@ export class TaskController {
             this.manager.update(task.id, formData);
             // TaskManager publishes 'task:updated' → subscription calls refresh()
         } catch (err) {
-            this.view.showError(err.message); // ← View owns error display
+            if (err.isValidationError) {
+                this.view.showFieldErrors(err.fields);
+            } else {
+                this.view.showError(err.message);
+            }
             return;
         }
         this.view.closeTaskModal();
@@ -113,6 +121,24 @@ export class TaskController {
     _completeTask(task) { this.manager.complete(task.id); }
     _rejectTask(task)   { this.manager.reject(task.id); }
     _deleteTask(task)   { this.manager.remove(task.id); }
+
+    // ─── Public API (for external triggers like keyboard shortcuts) ───────────
+
+    openNewTask() {
+        this._openAddModal();
+    }
+
+    focusSearch() {
+        this.view.focusSearch();
+    }
+
+    closeModals() {
+        this.view.closeTaskModal();
+        this.view.closeFilterModal();
+        if (typeof this.view.closeViewTaskModal === 'function') {
+            this.view.closeViewTaskModal();
+        }
+    }
 
     // ─── Filter & Sort ────────────────────────────────────────────────────────
 
