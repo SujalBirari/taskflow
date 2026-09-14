@@ -140,11 +140,13 @@ export class Task {
      * @throws {Error} if validation fails.
      */
     static create(title, { description, catRaw, priRaw, dueDate } = {}) {
-        const titleCheck = validateTitle(title);
-        if (!titleCheck.valid) throw new Error(titleCheck.error);
-
-        const dateCheck = validateDueDate(dueDate);
-        if (!dateCheck.valid)  throw new Error(dateCheck.error);
+        const errors = validateTaskForm({ title, dueDate, priRaw });
+        if (errors.length > 0) {
+            const err = new Error('Validation failed: ' + errors.map(e => e.message).join(' | '));
+            err.fields = errors;
+            err.isValidationError = true;
+            throw err;
+        }
 
         return new Task(title, {
             description: description || null,
